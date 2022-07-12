@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zzy.eban.mapper.DepartmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zzy.eban.pojo.Department">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="parentId" property="parentId"/>
+        <result column="depPath" property="depPath"/>
+        <result column="enabled" property="enabled"/>
+        <result column="isParent" property="isParent"/>
+    </resultMap>
+    <resultMap id="childDepartment" type="com.zzy.eban.pojo.Department" extends="BaseResultMap">
+        <collection property="children" ofType="com.zzy.eban.pojo.Department"
+                    select="com.zzy.eban.mapper.DepartmentMapper.getAllDepartment" column="id">
+
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, parentId, depPath, enabled, isParent
+    </sql>
+    <!--删除部门-->
+    <select id="deleteDep" statementType="CALLABLE">
+    call deleteDep(#{id,mode=IN,jdbcType=INTEGER},#{result,mode=OUT,jdbcType=INTEGER})
+    </select>
+    <!--添加部门-->
+    <select id="addDep" statementType="CALLABLE">
+        call addDep(#{name,mode=IN},#{parentId,mode=IN},#{enabled,mode=IN},#{result,mode=OUT,jdbcType=INTEGER},
+        #{id,mode=OUT,jdbcType=INTEGER})
+    </select>
+
+    <select id="getAllDepartment" resultMap="childDepartment">
+        select
+        <include refid="Base_Column_List"/>
+        from t_department
+        where parentId=#{parentId}
+
+
+    </select>
+
+</mapper>
